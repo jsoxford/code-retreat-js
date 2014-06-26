@@ -2,6 +2,8 @@
 var net = require('net');
 var fs = require('fs');
 
+
+
 /**
  TODO
 
@@ -12,11 +14,14 @@ var fs = require('fs');
  * Post results to server
  **/
 
+
+
+
 //
 // Start of methods to be refactored
 // Move these into file to be created by team
 //
-
+var fileToWatch = __dirname + "sessions/1.js";
 var team = [
   {"name": "Ryan Brooks"},
   {"name": "Ben Foxall"}
@@ -33,6 +38,21 @@ function processIteration(generation0){
 var localPort = 7878;
 var remoteAddress = '127.0.0.1';
 var remotePort = 8787;
+var session; // The loaded Javascript object (or undefined)
+
+try{
+  session = require(sessionPath);
+}catch(e){
+  console.error("Something went pretty badly wrong. Does that file exist?");
+  process.exit(1);
+}
+
+fs.watch(fileToWatch, function (event, filename) {
+  if(event == 'change'){
+    console.log("Noticed change, reloading " + sessionPath);
+    session = require(sessionPath);
+  }
+});
 
 // Set up listener for messages
 var server = net.createServer(function(socket) {
