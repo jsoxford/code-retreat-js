@@ -1,10 +1,34 @@
+#! /usr/bin/env node
 var net = require('net');
+var fs = require('fs');
+
+/**
+ TODO
+
+ * Refactor server/client into client listener only
+ * Die on disconnection from server?
+ * Watch file & reload on change
+ * Run tests in file
+ * Post results to server
+ **/
+
+//
+// Start of methods to be refactored
+// Move these into file to be created by team
+//
 
 var team = [
   {"name": "Ryan Brooks"},
   {"name": "Ben Foxall"}
 ];
 var sessionId = 0;
+function processIteration(generation0){
+  return "000100100111101011101011010101";
+}
+
+//
+// End of methods to be refactored
+//
 
 var localPort = 7878;
 var remoteAddress = '127.0.0.1';
@@ -49,9 +73,6 @@ var server = net.createServer(function(socket) {
     socket.write(JSON.stringify(response));
   });
 });
-
-
-
 server.listen(localPort);
 
 // Connect to the remote server and send capabilities
@@ -75,7 +96,3 @@ client.on('data', function(data) {
 client.on('close', function() {
 	console.log('Connection closed');
 });
-
-function processIteration(generation0){
-  return "000100100111101011101011010101";
-}
