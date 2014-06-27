@@ -11,6 +11,8 @@ exports.processIteration = function(generation0){
 exports.runTests = function(){
     console.log("Whoop, I ran a test");
     return {
-        testsRun: 100,
+        testsRun: 110,
+        testsFailed: 23,
+        testsIgnored: 1
     }
 }

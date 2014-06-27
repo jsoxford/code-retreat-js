@@ -1,76 +1,73 @@
 #! /usr/bin/env node
+var express = require('express');
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var net = require('net');
 var fs = require('fs');
-
+var fsTimeout; // used to prevent the watch event firing many times
+var connRetryTimeout; //used to retry connection failures
+var session; // The loaded Javascript object (or undefined)
 var fileToWatch;
+var testStatus = {};
+
+// Variables you might want to change
+var remoteAddress = '127.0.0.1';
+var remotePort = 8787;
+
+// Configure the simple status page and update it every second
+app.use(express.static(__dirname + '/public'));
+setInterval(function () {
+    io.emit('testStatus', testStatus);
+});
+http.listen(3000, function () {
+    console.log("Listening on localhost:3000")
+});
+
+/**
+ * TODO
+ * Run test suite
+ * Post results to server
+ **/
 
 if(process.argv[0] == 'node' && process.argv.length == 3){
     fileToWatch = process.argv[2];
 }else if(process.argv.length == 2){
     fileToWatch = process.argv[1];
 }
-console.log("Watching " + fileToWatch);
 
-/**
- TODO
-
- * Die on disconnection from server?
- * Watch file reloads too many times
- * Run test suite
- * Post results to server
- * Status page -> local page to see red/green/refactor cycle
- **/
-
-
-
-var remoteAddress = '127.0.0.1';
-var remotePort = 8787;
-var session; // The loaded Javascript object (or undefined)
-
-try{
-  session = require(fileToWatch);
-}catch(e){
-  console.error("Something went pretty badly wrong. Does that file exist? "+fileToWatch);
-  process.exit(1);
+// If it's not absolute, add on the CWD
+if(fileToWatch.substring(0,1) != '/'){
+    fileToWatch = process.cwd() + '/' + fileToWatch
 }
+console.log("Watching " + fileToWatch);
 
 // Connect to the remote server and send capabilities
 var client = new net.Socket();
+client.connect(remotePort, remoteAddress);
+
+// Load the test suite & code
 try{
-    client.connect(remotePort, remoteAddress, function() {
-        console.log('Connected');
-    });
+  session = require(fileToWatch);
+  runTests(fileToWatch);
 }catch(e){
-    // FIXME should we silently accept failure and do the test runs anyway?
-    console.error("Could not connect to server, are you connected to the network?");
-    process.exit(1);
+  console.error("Something went pretty badly wrong. Does that file exist? "+fileToWatch);
+  console.error(e);
+  process.exit(1);
 }
 
-// Watch the file for changes and run the test suite when it does
-fs.watch(fileToWatch, function (event, filename) {
-  if(event == 'change'){
-    console.log("Noticed change, reloading " + fileToWatch);
-    // We need to delete the reference from the cache first (otherwise it won't be reloaded...)
-    delete require.cache[require.resolve(fileToWatch)];
-    session = require(fileToWatch);
+// Watch the file for changes and run the test suite when it does (max once per 5 seconds)
+fs.watch(fileToWatch, function(event, filename){
+    if(event == 'change' && !fsTimeout){
+        fsTimeout = setTimeout(function() { fsTimeout=null }, 5000) // give 5 seconds for multiple events
 
-    var results = session.runTests();
-    var runStats = {
-        action: "consumeTestResults",
-        payload: {
-            session: session.sessionId,
-            testsRun: 10,
-            testsPassed: 3,
-            testsIgnored: 2
-        }
+        console.log("Noticed change, reloading " + fileToWatch);
+        // We need to delete the reference from the cache first (otherwise it won't be reloaded...)
+        delete require.cache[require.resolve(fileToWatch)];
+        session = require(fileToWatch);
+        runTests(fileToWatch);
     }
-    client.write(JSON.stringify(runStats));
-  }
 });
-
-
-
-
 
 // Receive requests from the server
 client.on('data', function (payload) {
@@ -118,7 +115,36 @@ client.on('data', function (payload) {
   client.write(JSON.stringify(response));
 });
 
+client.on('connect', function () {
+    console.log('Connected to ' + remoteAddress);
+})
 // Handle the server closing the connection
+// Try once more to connect
 client.on('close', function() {
-	console.log('Connection closed');
+    if(!connRetryTimeout){
+	    console.log('Communication failure...');
+        connRetryTimeout = setTimeout(function() { connRetryTimeout = null; client.connect(remotePort, remoteAddress) }, 5000);
+    }
 });
+
+client.on('error', function(e) {
+    if(!connRetryTimeout){
+        console.error("Could not connect to server, are you connected to the network? Retrying connection in 5 seconds...");
+        connRetryTimeout = setTimeout(function() { connRetryTimeout = null; client.connect(remotePort, remoteAddress) }, 5000);
+    }
+});
+
+function runTests(event, filename){
+    testStatus = session.runTests();
+    var runStats = {
+        action: "consumeTestResults",
+        payload: {
+            team: session.team,
+            session: session.sessionId,
+            testsRun: testStatus.testsRun,
+            testsFailed: testStatus.testsFailed,
+            testsIgnored: testStatus.testsIgnored,
+        }
+    }
+    client.write(JSON.stringify(runStats));
+}
