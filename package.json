@@ -1,7 +1,7 @@
 {
-  "name": "code-retreat-js",
-  "version": "0.0.0",
-  "description": "code-retreat-js ===============",
+  "name": "coderetreat",
+  "version": "0.0.1",
+  "description": "Automatically run your tests, and connect to the Code Retreat Game of Life server to be part of the bigger picture",
   "main": "app/coderetreat.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,10 +10,16 @@
     "type": "git",
     "url": "https://github.com/jsoxford/code-retreat-js.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Ryan Brooks",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/jsoxford/code-retreat-js/issues"
   },
-  "homepage": "https://github.com/jsoxford/code-retreat-js"
+  "homepage": "https://github.com/jsoxford/code-retreat-js",
+  "dependencies": {
+    "express": "^4.4.5",
+    "socket.io": "^1.0.6",
+    "mocha": "^1.20.1",
+    "should": "^4.0.4"
+  }
 }
