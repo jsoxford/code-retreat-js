@@ -1,21 +1,8 @@
-// exports.sessionId = 0;
-// exports.team = [
-//   {"name": "Ryan Brooks"},
-//   {"name": "Ben Foxall"}
-// ];
-//
-// exports.processIteration = function(generation0){
-//   return "00010010011110111101011010101";
-// }
-//
-// exports.runTests = function(){
-//     console.log("Whoop, I ran a test");
-//     return {
-//         testsRun: 110,
-//         testsFailed: 23,
-//         testsIgnored: 1
-//     }
-// }
+// Session 0, I'm awesome
+
+function tick(generation0){
+
+}
 
 describe("Something", function () {
     it("Should do something cool", function () {
