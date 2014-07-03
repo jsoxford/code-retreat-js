@@ -2,7 +2,12 @@
 var fileToWatch;
 if(process.argv[0] == 'node' && process.argv.length == 3){
 	fileToWatch = process.argv[2];
-}else if(process.argv.length == 2){
+}else if(process.argv[0] != 'node' && process.argv.length == 2){
 	fileToWatch = process.argv[1];
+}else{
+	console.log("You need to tell me what to watch!");
+	console.log("Usage:");
+	console.log("\tcr somefile.js");
+	process.exit(1);
 }
 require('../lib/coderetreat.js').run(fileToWatch);
