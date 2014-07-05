@@ -31,7 +31,7 @@ exports.tickCell = function(generation0){
       }
     }
 
-    return !lives;
+    return lives;
 }
 
 exports.tickBoard = function(generation0){
