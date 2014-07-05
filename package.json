@@ -1,9 +1,12 @@
 {
   "name": "coderetreat",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Automatically run your tests, and connect to the Code Retreat Game of Life server to be part of the bigger picture",
   "main": "app/coderetreat.js",
-  "bin" : { "cr" : "./bin/cr.js" },
+  "directories": {
+    "bin" : "./bin/",
+    "lib" : "./lib/"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
