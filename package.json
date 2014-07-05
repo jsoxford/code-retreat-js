@@ -1,6 +1,6 @@
 {
   "name": "coderetreat",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Automatically run your tests, and connect to the Code Retreat Game of Life server to be part of the bigger picture",
   "main": "app/coderetreat.js",
   "scripts": {
