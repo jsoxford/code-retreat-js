@@ -29,14 +29,11 @@ exports.tickCell = function(generation0){
         return false;
       }
     }
-    return 'x'
+    return 'x';
 }
 
 exports.tickBoard = function(generation0){
-    console.log( 'Board >>>');
-    console.log(generation0);
-    generation0.unshift([111,111]);
-    return [[22,22],[1,1]];
+    return [generation0];
 }
 
 describe("tickCell", function () {

@@ -21,6 +21,8 @@
     "socket.io": "^1.0.6",
     "mocha": "^1.20.1",
     "should": "^4.0.4",
-    "request": "^2.36.0"
+    "request": "^2.36.0",
+    "JSONStream": "^0.8.4",
+    "event-stream": "^3.1.5"
   }
 }
